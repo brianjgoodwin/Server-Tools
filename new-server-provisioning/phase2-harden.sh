@@ -49,6 +49,14 @@ Port $SSH_PORT
 PermitRootLogin no
 PasswordAuthentication no
 MaxAuthTries 3
+X11Forwarding no
+AllowTcpForwarding no
+AllowAgentForwarding no
+TCPKeepAlive no
+ClientAliveInterval 300
+ClientAliveCountMax 2
+MaxSessions 2
+LogLevel VERBOSE
 EOF
 sudo sshd -t || die "sshd config failed validation — check $SSHD_DROPIN. sshd was NOT restarted."
 
@@ -90,6 +98,24 @@ else
     echo "WARNING: AppArmor is not active. This ships enabled by default on"
     echo "Ubuntu — if it's off, something upstream of this script disabled it."
 fi
+
+# --- sysctl hardening ---------------------------------------------------------
+
+say "Applying kernel/network sysctl hardening"
+sudo tee /etc/sysctl.d/90-base-hardening.conf > /dev/null <<'EOF'
+# Managed by phase2-harden.sh.
+fs.protected_fifos = 2
+fs.suid_dumpable = 0
+kernel.kptr_restrict = 2
+kernel.sysrq = 0
+kernel.unprivileged_bpf_disabled = 1
+net.core.bpf_jit_harden = 2
+net.ipv4.conf.all.log_martians = 1
+net.ipv4.conf.all.rp_filter = 1
+net.ipv4.conf.all.send_redirects = 0
+net.ipv4.conf.default.log_martians = 1
+EOF
+sudo sysctl --system > /dev/null
 
 # --- /tmp, /var/tmp, /dev/shm mount flags -----------------------------------
 
