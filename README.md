@@ -6,8 +6,17 @@ a dev box — not every machine.
 
 ## Tutorial
 
-Get a root console on a new Hetzner box. Clone this repo onto it. Run
-`new-server-provisioning/phase1-create-user.sh`. It'll ask you three
+Get a root console on a new Hetzner box. Clone this repo into a path any
+user can traverse — `/opt/server-tools`, not `/root/...` (phase 2 runs as
+the new non-root user and can't reach anything under `/root`, home dir
+permissions are `700` by default):
+
+```
+git clone <repo-url> /opt/server-tools
+cd /opt/server-tools/new-server-provisioning
+```
+
+Run `./phase1-create-user.sh`. It'll ask you three
 questions and set a sudo password. When it's done, it stops and tells you to
 open a new terminal and SSH in as the user you just created. Do that. Make
 sure `sudo` works. Then, as that user, run `phase2-harden.sh`. Keep your

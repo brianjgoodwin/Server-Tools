@@ -26,6 +26,13 @@ if [ -f "$ENV_FILE" ]; then
     die "$ENV_FILE already exists. Phase 1 is meant to run once per box. Remove it first if you really want to re-run this."
 fi
 
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+case "$SCRIPT_DIR" in
+    /root|/root/*)
+        die "this repo is cloned under /root ($SCRIPT_DIR) — phase 2 runs as the new non-root user and can't reach anything under /root (mode 700). Re-clone it somewhere world-traversable, e.g. /opt/server-tools, and run phase 1 again."
+        ;;
+esac
+
 say "Base layer — phase 1: create non-root sudo user"
 echo "This will prompt for a username and an SSH public key, create the"
 echo "user, scope sudo narrowly, and write $ENV_FILE for phase 2."
